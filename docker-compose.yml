@@ -1,0 +1,173 @@
+services:
+  asset-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: asset_service
+      POSTGRES_USER: patrimoine
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-patrimoine-local}
+    volumes:
+      - asset-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U patrimoine -d asset_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  history-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: history_service
+      POSTGRES_USER: patrimoine
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-patrimoine-local}
+    volumes:
+      - history-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U patrimoine -d history_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  report-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: report_service
+      POSTGRES_USER: patrimoine
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-patrimoine-local}
+    volumes:
+      - report-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U patrimoine -d report_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  asset-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_PATH: apps/asset-service
+    env_file:
+      - ./apps/asset-service/.env
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8001
+      DB_CONNECTION: pgsql
+      DB_HOST: asset-db
+      DB_PORT: "5432"
+      DB_DATABASE: asset_service
+      DB_USERNAME: patrimoine
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-patrimoine-local}
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+    depends_on:
+      asset-db:
+        condition: service_healthy
+    command: >-
+      sh -c "php artisan migrate --force &&
+      exec php artisan serve --host=0.0.0.0 --port=8000"
+    ports:
+      - "127.0.0.1:8001:8000"
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - -r
+        - "exit(@file_get_contents('http://127.0.0.1:8000/up') === false ? 1 : 0);"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  history-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_PATH: apps/history-service
+    env_file:
+      - ./apps/history-service/.env
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8002
+      DB_CONNECTION: pgsql
+      DB_HOST: history-db
+      DB_PORT: "5432"
+      DB_DATABASE: history_service
+      DB_USERNAME: patrimoine
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-patrimoine-local}
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+    depends_on:
+      history-db:
+        condition: service_healthy
+    command: >-
+      sh -c "php artisan migrate --force &&
+      exec php artisan serve --host=0.0.0.0 --port=8000"
+    ports:
+      - "127.0.0.1:8002:8000"
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - -r
+        - "exit(@file_get_contents('http://127.0.0.1:8000/up') === false ? 1 : 0);"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  report-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_PATH: apps/report-service
+    env_file:
+      - ./apps/report-service/.env
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8003
+      DB_CONNECTION: pgsql
+      DB_HOST: report-db
+      DB_PORT: "5432"
+      DB_DATABASE: report_service
+      DB_USERNAME: patrimoine
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-patrimoine-local}
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+    depends_on:
+      report-db:
+        condition: service_healthy
+    command: >-
+      sh -c "php artisan migrate --force &&
+      exec php artisan serve --host=0.0.0.0 --port=8000"
+    ports:
+      - "127.0.0.1:8003:8000"
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - -r
+        - "exit(@file_get_contents('http://127.0.0.1:8000/up') === false ? 1 : 0);"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  asset-db-data:
+  history-db-data:
+  report-db-data:

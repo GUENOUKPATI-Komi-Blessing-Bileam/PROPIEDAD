@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1000" viewBox="0 0 1440 1000">
+  <rect width="1440" height="1000" fill="#F5F7F8"/>
+  <rect width="240" height="1000" fill="#123B45"/>
+  <rect x="24" y="24" width="38" height="38" rx="11" fill="#D9F0E8"/>
+  <path d="M33 43h20M43 33v20" stroke="#14685F" stroke-width="4" stroke-linecap="round"/>
+  <text x="74" y="43" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700">PATRIMOINE</text>
+  <text x="74" y="59" fill="#B8D5D5" font-family="Inter, Arial, sans-serif" font-size="9" letter-spacing="1.5">ÉTAT</text>
+  <text x="28" y="156" fill="#D0E0E1" font-family="Inter, Arial, sans-serif" font-size="13">⌂  Tableau de bord</text>
+  <text x="28" y="200" fill="#D0E0E1" font-family="Inter, Arial, sans-serif" font-size="13">▦  Biens</text>
+  <rect x="12" y="225" width="216" height="42" rx="8" fill="#1D5660"/>
+  <text x="28" y="251" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600">⇄  Mouvements</text>
+  <text x="28" y="295" fill="#D0E0E1" font-family="Inter, Arial, sans-serif" font-size="13">▣  Inventaires</text>
+  <text x="28" y="339" fill="#D0E0E1" font-family="Inter, Arial, sans-serif" font-size="13">▤  Rapports</text>
+  <rect x="240" y="0" width="1200" height="72" fill="#FFFFFF"/>
+  <rect x="240" y="71" width="1200" height="1" fill="#E5EAEB"/>
+  <text x="276" y="43" fill="#63767B" font-family="Inter, Arial, sans-serif" font-size="12">Patrimoine  /  Mouvements  /  Nouvelle demande</text>
+  <circle cx="1274" cy="36" r="17" fill="#D5E9E4"/>
+  <text x="1267" y="40" fill="#176B61" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="700">AM</text>
+  <text x="1300" y="40" fill="#243A40" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="600">A. Manager</text>
+  <text x="276" y="128" fill="#718186" font-family="Inter, Arial, sans-serif" font-size="12">‹  Retour aux mouvements</text>
+  <text x="276" y="177" fill="#172D33" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="700">Soumettre un mouvement</text>
+  <text x="276" y="204" fill="#718186" font-family="Inter, Arial, sans-serif" font-size="12">Une demande validée mettra à jour la situation actuelle du bien.</text>
+  <rect x="276" y="230" width="790" height="592" rx="12" fill="#FFFFFF" stroke="#E3E9EA"/>
+  <text x="302" y="270" fill="#172D33" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700">Détails de la demande</text>
+  <rect x="302" y="290" width="738" height="1" fill="#E8EDEE"/>
+  <text x="302" y="322" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="600">Bien concerné *</text>
+  <rect x="302" y="333" width="738" height="52" rx="8" fill="#F5F8F8" stroke="#D8E2E3"/>
+  <circle cx="326" cy="359" r="12" fill="#DCEDE8"/>
+  <text x="322" y="363" fill="#176B61" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="700">B</text>
+  <text x="348" y="356" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="600">INV-2026-0482 · Ordinateur portable Dell Latitude</text>
+  <text x="348" y="373" fill="#718186" font-family="Inter, Arial, sans-serif" font-size="9">Situation actuelle : Direction des finances · Bâtiment A · Bureau 204</text>
+  <text x="302" y="422" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="600">Type de mouvement *</text>
+  <rect x="302" y="433" width="352" height="46" rx="7" fill="#FFFFFF" stroke="#CBD6D8"/>
+  <text x="318" y="461" fill="#53676D" font-family="Inter, Arial, sans-serif" font-size="11">Transfert  ▾</text>
+  <text x="670" y="422" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="600">Date d'effet *</text>
+  <rect x="670" y="433" width="370" height="46" rx="7" fill="#FFFFFF" stroke="#CBD6D8"/>
+  <text x="686" y="461" fill="#53676D" font-family="Inter, Arial, sans-serif" font-size="11">JJ / MM / AAAA</text>
+  <text x="302" y="514" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="600">Service de destination *</text>
+  <rect x="302" y="525" width="352" height="46" rx="7" fill="#FFFFFF" stroke="#CBD6D8"/>
+  <text x="318" y="553" fill="#859398" font-family="Inter, Arial, sans-serif" font-size="11">Sélectionner un service  ▾</text>
+  <text x="670" y="514" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="600">Site / emplacement de destination *</text>
+  <rect x="670" y="525" width="370" height="46" rx="7" fill="#FFFFFF" stroke="#CBD6D8"/>
+  <text x="686" y="553" fill="#859398" font-family="Inter, Arial, sans-serif" font-size="11">Sélectionner un site  ▾</text>
+  <text x="302" y="606" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="600">Personne ou équipe destinataire</text>
+  <rect x="302" y="617" width="738" height="46" rx="7" fill="#FFFFFF" stroke="#CBD6D8"/>
+  <text x="318" y="645" fill="#859398" font-family="Inter, Arial, sans-serif" font-size="11">Nom ou service destinataire (facultatif, selon les règles à valider)</text>
+  <text x="302" y="698" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="600">Motif de la demande *</text>
+  <rect x="302" y="709" width="738" height="82" rx="7" fill="#FFFFFF" stroke="#CBD6D8"/>
+  <text x="318" y="737" fill="#859398" font-family="Inter, Arial, sans-serif" font-size="11">Précisez la raison du transfert...</text>
+  <rect x="1082" y="230" width="320" height="187" rx="12" fill="#FFFFFF" stroke="#E3E9EA"/>
+  <text x="1106" y="270" fill="#172D33" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">Circuit de validation</text>
+  <circle cx="1118" cy="310" r="13" fill="#E8F3F0"/>
+  <text x="1114" y="314" fill="#176B61" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="700">1</text>
+  <text x="1142" y="307" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="600">Soumission</text>
+  <text x="1142" y="323" fill="#718186" font-family="Inter, Arial, sans-serif" font-size="9">Par vous, après confirmation.</text>
+  <circle cx="1118" cy="360" r="13" fill="#F0F3F4"/>
+  <text x="1114" y="364" fill="#718186" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="700">2</text>
+  <text x="1142" y="357" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="600">Validation</text>
+  <text x="1142" y="373" fill="#718186" font-family="Inter, Arial, sans-serif" font-size="9">Par un gestionnaire habilité.</text>
+  <rect x="1082" y="437" width="320" height="184" rx="12" fill="#FFF6E8" stroke="#F0D8AD"/>
+  <circle cx="1110" cy="469" r="12" fill="#F4DFB8"/>
+  <text x="1106" y="473" fill="#A66912" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="700">!</text>
+  <text x="1132" y="473" fill="#8A5E19" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700">Avant de soumettre</text>
+  <text x="1106" y="504" fill="#725C38" font-family="Inter, Arial, sans-serif" font-size="10">La situation du bien ne change qu'après</text>
+  <text x="1106" y="521" fill="#725C38" font-family="Inter, Arial, sans-serif" font-size="10">validation de la demande.</text>
+  <text x="1106" y="553" fill="#725C38" font-family="Inter, Arial, sans-serif" font-size="10">La demande et son auteur seront</text>
+  <text x="1106" y="570" fill="#725C38" font-family="Inter, Arial, sans-serif" font-size="10">conservés dans l'historique.</text>
+  <text x="1106" y="598" fill="#725C38" font-family="Inter, Arial, sans-serif" font-size="10">Vérifiez la destination avant envoi.</text>
+  <rect x="276" y="844" width="1126" height="66" rx="12" fill="#FFFFFF" stroke="#E3E9EA"/>
+  <rect x="1168" y="856" width="110" height="42" rx="8" fill="#FFFFFF" stroke="#CBD6D8"/>
+  <text x="1195" y="882" fill="#344B51" font-family="Inter, Arial, sans-serif" font-size="11" font-weight="600">Annuler</text>
+  <rect x="1290" y="856" width="88" height="42" rx="8" fill="#176B61"/>
+  <text x="1302" y="882" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="10" font-weight="700">Soumettre</text>
+</svg>

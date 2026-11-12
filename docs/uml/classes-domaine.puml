@@ -1,0 +1,113 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide methods
+
+package "asset-service — données propriétaires" {
+  class Bien {
+    +id: UUID
+    +codeInventaire: string
+    +libelle: string
+    +description: text
+    +dateAcquisition: date?
+    +valeurAcquisition: decimal?
+    +devise: string?
+    +etat: EtatBien
+    +statut: StatutBien
+    +categorieId: UUID
+    +serviceResponsableId: UUID
+    +siteId: UUID
+    +version: integer
+  }
+
+  class Categorie {
+    +id: UUID
+    +libelle: string
+    +actif: boolean
+  }
+
+  class Mouvement {
+    +id: UUID
+    +bienId: UUID
+    +type: TypeMouvement
+    +statut: StatutMouvement
+    +serviceOrigineId: UUID?
+    +siteOrigineId: UUID?
+    +serviceDestinationId: UUID?
+    +siteDestinationId: UUID?
+    +soumisPar: UUID
+    +validePar: UUID?
+    +motif: text
+    +dateEffet: datetime
+  }
+
+  class CampagneInventaire {
+    +id: UUID
+    +libelle: string
+    +statut: StatutCampagne
+    +serviceId: UUID?
+    +siteId: UUID?
+    +dateDebut: date
+    +dateFin: date?
+    +creePar: UUID
+  }
+
+  class LigneInventaire {
+    +id: UUID
+    +campagneId: UUID
+    +bienId: UUID
+    +resultat: ResultatInventaire
+    +siteObserveId: UUID?
+    +etatObserve: EtatBien?
+    +observePar: UUID?
+    +observeLe: datetime?
+    +commentaire: text?
+  }
+
+  class EvenementOutbox {
+    +eventId: UUID
+    +type: string
+    +aggregateId: UUID
+    +payload: json
+    +creeLe: datetime
+    +publieLe: datetime?
+  }
+
+  Categorie "1" <-- "0..*" Bien : catégorie
+  Bien "1" <-- "0..*" Mouvement : opérations
+  CampagneInventaire "1" *-- "0..*" LigneInventaire : lignes
+  Bien "1" <-- "0..*" LigneInventaire : vérifications
+}
+
+package "auth — propriétaire des identités" {
+  class Utilisateur {
+    +id: UUID
+    +nom: string
+    +email: string
+    +motDePasseHash: string
+    +actif: boolean
+  }
+  class Role {
+    +id: UUID
+    +code: string
+    +libelle: string
+  }
+  class Permission {
+    +id: UUID
+    +code: string
+  }
+  Utilisateur "0..*" -- "0..*" Role
+  Role "0..*" -- "0..*" Permission
+}
+
+note bottom of Bien
+serviceResponsableId et siteId sont des références
+vers des référentiels détenus par asset-service.
+Les UUID d'utilisateur sont externes : pas de FK
+vers auth dans la base asset-service.
+end note
+
+note bottom of EvenementOutbox
+Écrit dans la transaction métier concernée ;
+un worker le livre au history-service avec reprises.
+end note
+@enduml

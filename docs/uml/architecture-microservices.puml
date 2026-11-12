@@ -1,0 +1,58 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+actor "Utilisateur web / mobile" as User
+
+node "Plateforme conteneurisée" {
+  component "Interface web\n(à réaliser)" as UI
+  component "API Gateway\napps/gateway" as Gateway
+  component "Auth Service\napps/auth" as Auth
+  component "Asset Service\napps/asset-service" as Asset
+  component "History Service\napps/history-service" as History
+  component "Report Service\napps/report-service" as Report
+  queue "Outbox / livraison\nHTTP avec reprises" as Outbox
+
+  database "Base Auth" as AuthDB
+  database "Base Assets" as AssetDB
+  database "Base History" as HistoryDB
+  database "Base Reports\n(optionnelle)" as ReportDB
+}
+
+User --> UI
+UI --> Gateway : HTTPS / API
+Gateway --> Auth : authentification
+Gateway --> Asset : biens, mouvements,\ninventaires
+Gateway --> History : consultation autorisée
+Gateway --> Report : génération de rapports
+
+Auth --> AuthDB : possède
+Asset --> AssetDB : possède
+History --> HistoryDB : possède
+Report --> ReportDB : cache / agrégats\nsi nécessaire
+
+Asset --> Outbox : écrit dans la même\ntransaction métier
+Outbox --> History : événements avec reprise
+Asset --> Report : événements ou API\nselon le besoin
+
+note right of Gateway
+Routage et fonctions transversales.
+Ne contient pas de règles métier
+et ne remplace pas l'autorisation
+dans les services.
+end note
+
+note bottom of AssetDB
+Pas de base partagée ni de jointure
+entre bases de services. Les références
+externes sont des identifiants échangés
+par API / événements, sans clé étrangère.
+end note
+
+note bottom of Outbox
+Le consommateur History doit traiter
+event_id de façon idempotente.
+L'outbox peut être une table locale
+et un worker Laravel pour le MVP.
+end note
+@enduml

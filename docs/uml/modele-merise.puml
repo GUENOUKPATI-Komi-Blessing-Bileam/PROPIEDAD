@@ -1,0 +1,219 @@
+@startuml
+title MCD Merise — Organisation des bases de données
+
+left to right direction
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+legend top
+  MCD séparé par propriétaire de données (microservice).
+  Les relations avec cardinalités sont internes à une base.
+  Les UUID d'un autre service sont des références applicatives,
+  jamais des clés étrangères inter-bases.
+endlegend
+
+package "BASE ASSET — apps/asset-service" #EAF3FF {
+  entity "CATEGORIE" as Categorie {
+    * id : UUID
+    --
+    libelle : string
+    description : text
+    actif : boolean
+  }
+
+  entity "SERVICE_ADMINISTRATIF" as Service {
+    * id : UUID
+    --
+    code : string
+    libelle : string
+    parent_id : UUID [0..1]
+    actif : boolean
+  }
+
+  entity "SITE" as Site {
+    * id : UUID
+    --
+    code : string
+    libelle : string
+    adresse : text [0..1]
+    actif : boolean
+  }
+
+  entity "BIEN" as Bien {
+    * id : UUID
+    --
+    code_inventaire : string {unique}
+    libelle : string
+    description : text [0..1]
+    date_acquisition : date [0..1]
+    valeur_acquisition : decimal [0..1]
+    devise : char(3) [0..1]
+    etat : enum
+    statut : enum
+    categorie_id : UUID
+    service_responsable_id : UUID
+    site_id : UUID
+    cree_par : UUID (Auth)
+    version : integer
+  }
+
+  entity "MOUVEMENT" as Mouvement {
+    * id : UUID
+    --
+    type : enum
+    statut : enum
+    date_effet : datetime
+    motif : text
+    service_origine_id : UUID [0..1]
+    site_origine_id : UUID [0..1]
+    service_destination_id : UUID [0..1]
+    site_destination_id : UUID [0..1]
+    soumis_par : UUID (Auth)
+    valide_par : UUID [0..1] (Auth)
+  }
+
+  entity "CAMPAGNE_INVENTAIRE" as Campagne {
+    * id : UUID
+    --
+    libelle : string
+    statut : enum
+    date_debut : date
+    date_fin : date [0..1]
+    service_id : UUID [0..1]
+    site_id : UUID [0..1]
+    cree_par : UUID (Auth)
+  }
+
+  entity "LIGNE_INVENTAIRE" as Ligne {
+    * id : UUID
+    --
+    resultat : enum
+    site_observe_id : UUID [0..1]
+    etat_observe : enum [0..1]
+    commentaire : text [0..1]
+    observe_par : UUID [0..1] (Auth)
+    observe_le : datetime [0..1]
+    {unique} campagne_id + bien_id
+  }
+
+  entity "OUTBOX_EVENT" as Outbox {
+    * event_id : UUID
+    --
+    type_evenement : string
+    aggregate_type : string
+    aggregate_id : UUID
+    payload : JSON
+    cree_le : datetime
+    publie_le : datetime [0..1]
+    tentatives : integer
+  }
+
+  Categorie ||--o{ Bien : classe
+  Service ||--o{ Bien : responsable courant
+  Site ||--o{ Bien : localisation courante
+  Bien ||--o{ Mouvement : concerne
+  Service o|--o{ Mouvement : origine
+  Service o|--o{ Mouvement : destination
+  Site o|--o{ Mouvement : site origine
+  Site o|--o{ Mouvement : site destination
+  Service o|--o{ Campagne : périmètre
+  Site o|--o{ Campagne : périmètre
+  Campagne ||--o{ Ligne : contient
+  Bien ||--o{ Ligne : vérifié dans
+
+  note bottom of Outbox
+    OUTBOX_EVENT est écrite dans la même transaction
+    que le changement métier. Un worker la livre
+    à History avec reprise et déduplication par event_id.
+  end note
+}
+
+package "BASE AUTH — apps/auth" #F1ECFF {
+  entity "UTILISATEUR" as Utilisateur {
+    * id : UUID
+    --
+    nom : string
+    email : string {unique}
+    mot_de_passe_hash : string
+    actif : boolean
+  }
+
+  entity "ROLE" as Role {
+    * id : UUID
+    --
+    code : string {unique}
+    libelle : string
+    actif : boolean
+  }
+
+  entity "PERMISSION" as Permission {
+    * id : UUID
+    --
+    code : string {unique}
+    description : text
+  }
+
+  entity "UTILISATEUR_ROLE" as UtilisateurRole {
+    * utilisateur_id : UUID
+    * role_id : UUID
+    --
+    attribue_le : datetime
+    attribue_par : UUID [0..1]
+  }
+
+  entity "ROLE_PERMISSION" as RolePermission {
+    * role_id : UUID
+    * permission_id : UUID
+  }
+
+  Utilisateur ||--o{ UtilisateurRole : reçoit
+  Role ||--o{ UtilisateurRole : attribué
+  Role ||--o{ RolePermission : contient
+  Permission ||--o{ RolePermission : autorise
+}
+
+package "BASE HISTORY — apps/history-service" #FFF3E7 {
+  entity "EVENEMENT_AUDIT" as Audit {
+    * event_id : UUID
+    --
+    service_source : string
+    aggregate_type : string
+    aggregate_id : UUID
+    type_evenement : string
+    acteur_id : UUID [0..1] (Auth)
+    date_evenement : datetime
+    correlation_id : UUID [0..1]
+    payload : JSON
+    recu_le : datetime
+  }
+}
+
+package "AUTRES SERVICES" #F1F1F1 {
+  together {
+    class "Report Service\napps/report-service\n\nPas de base métier maîtresse\nau MVP. Lit les API/événements\net peut ajouter des agrégats\nreconstruisibles si nécessaire." as Report
+    class "API Gateway\napps/gateway\n\nAucune base métier.\nRoutage et fonctions\ntransversales uniquement." as Gateway
+  }
+}
+
+Bien .. Utilisateur : cree_par / UUID externe
+Mouvement .. Utilisateur : soumis_par, valide_par / UUID externe
+Ligne .. Utilisateur : observe_par / UUID externe
+Campagne .. Utilisateur : cree_par / UUID externe
+Audit .. Utilisateur : acteur_id / UUID externe
+
+note bottom of Bien
+Les liens en pointillés vers UTILISATEUR indiquent
+des références d'identité inter-services, pas des
+associations MCD ni des clés étrangères physiques.
+Les UUID sont vérifiés par API ou par les règles
+d'autorisation définies entre services.
+end note
+
+note bottom of Report
+Chaque service possède ses migrations et sa base.
+Aucune jointure directe ni base partagée entre services.
+end note
+
+@enduml

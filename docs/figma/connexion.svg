@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1000" viewBox="0 0 1440 1000">
+  <rect width="1440" height="1000" fill="#F4F7F8"/>
+  <rect x="0" y="0" width="720" height="1000" fill="#123B45"/>
+  <circle cx="640" cy="160" r="220" fill="#1B5660" opacity=".45"/>
+  <circle cx="70" cy="930" r="280" fill="#1B5660" opacity=".35"/>
+  <rect x="88" y="78" width="54" height="54" rx="14" fill="#D9F0E8"/>
+  <path d="M101 105h28M115 91v28" stroke="#14685F" stroke-width="5" stroke-linecap="round"/>
+  <text x="160" y="101" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700">PATRIMOINE</text>
+  <text x="160" y="124" fill="#B8D5D5" font-family="Inter, Arial, sans-serif" font-size="12" letter-spacing="2">ÉTAT</text>
+  <text x="88" y="380" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="700">Un patrimoine public</text>
+  <text x="88" y="432" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="700">mieux protégé.</text>
+  <text x="88" y="488" fill="#D2E4E3" font-family="Inter, Arial, sans-serif" font-size="17">La plateforme de suivi et d'inventaire des biens</text>
+  <text x="88" y="516" fill="#D2E4E3" font-family="Inter, Arial, sans-serif" font-size="17">de l'État, pour les services habilités.</text>
+  <rect x="88" y="590" width="4" height="54" rx="2" fill="#76C9AF"/>
+  <text x="110" y="612" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600">Inventaire centralisé</text>
+  <text x="110" y="636" fill="#B8D5D5" font-family="Inter, Arial, sans-serif" font-size="13">Une vision claire des biens et de leur localisation.</text>
+  <text x="88" y="950" fill="#B8D5D5" font-family="Inter, Arial, sans-serif" font-size="12">Plateforme de gestion du patrimoine public</text>
+  <text x="824" y="100" fill="#607278" font-family="Inter, Arial, sans-serif" font-size="13">ESPACE SÉCURISÉ</text>
+  <text x="824" y="178" fill="#172D33" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">Bienvenue</text>
+  <text x="824" y="211" fill="#61747A" font-family="Inter, Arial, sans-serif" font-size="15">Connectez-vous pour accéder à votre espace.</text>
+  <text x="824" y="290" fill="#243A40" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600">Adresse e-mail</text>
+  <rect x="824" y="307" width="438" height="54" rx="8" fill="#FFFFFF" stroke="#CBD6D8"/>
+  <text x="844" y="341" fill="#8A999D" font-family="Inter, Arial, sans-serif" font-size="14">nom@ministere.gov</text>
+  <text x="824" y="408" fill="#243A40" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600">Mot de passe</text>
+  <rect x="824" y="425" width="438" height="54" rx="8" fill="#FFFFFF" stroke="#CBD6D8"/>
+  <text x="844" y="459" fill="#8A999D" font-family="Inter, Arial, sans-serif" font-size="14">Saisissez votre mot de passe</text>
+  <text x="824" y="520" fill="#176B61" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="600">Mot de passe oublié ?</text>
+  <rect x="824" y="555" width="438" height="54" rx="8" fill="#176B61"/>
+  <text x="1008" y="589" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700">Se connecter</text>
+  <rect x="824" y="646" width="438" height="1" fill="#DFE6E7"/>
+  <text x="824" y="680" fill="#718186" font-family="Inter, Arial, sans-serif" font-size="12">L'accès est réservé aux utilisateurs autorisés.</text>
+  <text x="824" y="704" fill="#718186" font-family="Inter, Arial, sans-serif" font-size="12">En cas de problème, contactez votre administrateur.</text>
+</svg>

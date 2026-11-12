@@ -1,0 +1,965 @@
+openapi: 3.1.0
+info:
+  title: API de gestion du patrimoine de l'État
+  version: 1.0.0
+  description: >
+    Contrat initial du MVP exposé par le Gateway. Les autorisations sont
+    vérifiées par chaque service propriétaire, pas uniquement par le Gateway.
+servers:
+  - url: https://patrimoine.example.gov/api/v1
+    description: Hôte public à remplacer selon l'environnement
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: Biens
+  - name: Mouvements
+  - name: Inventaires
+  - name: Historique
+  - name: Rapports
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Ouvrir une session
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Authentification réussie
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [access_token, expires_after_seconds, user]
+                properties:
+                  access_token:
+                    type: string
+                    description: Jeton à transmettre dans l'en-tête Authorization selon le schéma bearerAuth.
+                  expires_after_seconds:
+                    type: integer
+                    minimum: 1
+                  user:
+                    $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Fermer la session courante
+      responses:
+        "204":
+          description: Session révoquée
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Obtenir l'utilisateur courant
+      responses:
+        "200":
+          description: Profil courant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /assets:
+    get:
+      tags: [Biens]
+      summary: Rechercher les biens accessibles
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - name: q
+          in: query
+          description: Recherche dans le code d'inventaire et le libellé
+          schema:
+            type: string
+        - name: category_id
+          in: query
+          schema:
+            $ref: "#/components/schemas/Uuid"
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/AssetStatus"
+        - name: condition
+          in: query
+          schema:
+            $ref: "#/components/schemas/AssetCondition"
+        - name: service_id
+          in: query
+          schema:
+            $ref: "#/components/schemas/Uuid"
+        - name: site_id
+          in: query
+          schema:
+            $ref: "#/components/schemas/Uuid"
+      responses:
+        "200":
+          description: Page de biens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [Biens]
+      summary: Créer une fiche de bien
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssetInput"
+      responses:
+        "201":
+          description: Bien créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /assets/{assetId}:
+    parameters:
+      - name: assetId
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/Uuid"
+    get:
+      tags: [Biens]
+      summary: Consulter une fiche de bien
+      responses:
+        "200":
+          description: Fiche du bien
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Biens]
+      summary: Modifier les champs autorisés d'une fiche
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssetPatch"
+      responses:
+        "200":
+          description: Fiche mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Asset"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /movements:
+    get:
+      tags: [Mouvements]
+      summary: Lister les mouvements accessibles
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/MovementStatus"
+        - name: asset_id
+          in: query
+          schema:
+            $ref: "#/components/schemas/Uuid"
+      responses:
+        "200":
+          description: Page de mouvements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovementPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [Mouvements]
+      summary: Soumettre un mouvement en attente de validation
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovementInput"
+      responses:
+        "201":
+          description: Demande de mouvement créée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movement"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /movements/{movementId}/approve:
+    post:
+      tags: [Mouvements]
+      summary: Approuver un mouvement en attente
+      parameters:
+        - $ref: "#/components/parameters/MovementId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Mouvement approuvé et situation du bien mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movement"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /movements/{movementId}/reject:
+    post:
+      tags: [Mouvements]
+      summary: Rejeter un mouvement en attente
+      parameters:
+        - $ref: "#/components/parameters/MovementId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+      responses:
+        "200":
+          description: Mouvement rejeté
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movement"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /inventory-campaigns:
+    get:
+      tags: [Inventaires]
+      summary: Lister les campagnes d'inventaire
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+      responses:
+        "200":
+          description: Page de campagnes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CampaignPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags: [Inventaires]
+      summary: Créer une campagne
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignInput"
+      responses:
+        "201":
+          description: Campagne créée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /inventory-campaigns/{campaignId}:
+    get:
+      tags: [Inventaires]
+      summary: Consulter la campagne et sa progression
+      parameters:
+        - name: campaignId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/Uuid"
+      responses:
+        "200":
+          description: Détail de campagne
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaign"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /inventory-campaigns/{campaignId}/checks:
+    post:
+      tags: [Inventaires]
+      summary: Soumettre le résultat de vérification d'un bien
+      parameters:
+        - name: campaignId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/Uuid"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryCheckInput"
+      responses:
+        "201":
+          description: Résultat enregistré
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryCheck"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /history:
+    get:
+      tags: [Historique]
+      summary: Consulter les événements d'audit accessibles
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - name: aggregate_type
+          in: query
+          schema:
+            type: string
+        - name: aggregate_id
+          in: query
+          schema:
+            $ref: "#/components/schemas/Uuid"
+        - name: from
+          in: query
+          description: Date/heure inclusive ISO 8601
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          description: Date/heure inclusive ISO 8601
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Page d'événements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditEventPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /reports/summary:
+    get:
+      tags: [Rapports]
+      summary: Obtenir les indicateurs du tableau de bord
+      parameters:
+        - name: service_id
+          in: query
+          schema:
+            $ref: "#/components/schemas/Uuid"
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Indicateurs limités au périmètre autorisé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /reports/assets.csv:
+    get:
+      tags: [Rapports]
+      summary: Exporter les biens accessibles au format CSV
+      parameters:
+        - name: service_id
+          in: query
+          schema:
+            $ref: "#/components/schemas/Uuid"
+        - name: category_id
+          in: query
+          schema:
+            $ref: "#/components/schemas/Uuid"
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/AssetStatus"
+      responses:
+        "200":
+          description: Fichier CSV
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              description: Nom du fichier exporté
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        Mécanisme indicatif du contrat. Choisir la stratégie de session/jeton
+        et sa révocation avant implémentation.
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PerPage:
+      name: per_page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: UUID unique par opération logique ; réutiliser cette valeur pour une reprise réseau.
+      schema:
+        type: string
+        format: uuid
+    MovementId:
+      name: movementId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/Uuid"
+  responses:
+    Unauthorized:
+      description: Authentification requise ou invalide
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Forbidden:
+      description: Action ou périmètre non autorisé
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Conflict:
+      description: Conflit de statut, version ou clé idempotente
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    ValidationError:
+      description: Données invalides
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ValidationProblem"
+  schemas:
+    Uuid:
+      type: string
+      format: uuid
+    User:
+      type: object
+      required: [id, name, email, roles]
+      properties:
+        id:
+          $ref: "#/components/schemas/Uuid"
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        roles:
+          type: array
+          items:
+            type: string
+    AssetStatus:
+      type: string
+      enum: [active, in_repair, disposed, archived]
+    AssetCondition:
+      type: string
+      enum: [good, fair, poor, unusable]
+    AssetInput:
+      type: object
+      required: [label, category_id, service_id, site_id, condition]
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: [string, "null"]
+        category_id:
+          $ref: "#/components/schemas/Uuid"
+        service_id:
+          $ref: "#/components/schemas/Uuid"
+        site_id:
+          $ref: "#/components/schemas/Uuid"
+        condition:
+          $ref: "#/components/schemas/AssetCondition"
+        acquisition_date:
+          type: [string, "null"]
+          format: date
+        acquisition_value:
+          type: [number, "null"]
+          minimum: 0
+        currency:
+          type: [string, "null"]
+          pattern: "^[A-Z]{3}$"
+    AssetPatch:
+      type: object
+      minProperties: 1
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: [string, "null"]
+        category_id:
+          $ref: "#/components/schemas/Uuid"
+        service_id:
+          $ref: "#/components/schemas/Uuid"
+        site_id:
+          $ref: "#/components/schemas/Uuid"
+        condition:
+          $ref: "#/components/schemas/AssetCondition"
+        acquisition_date:
+          type: [string, "null"]
+          format: date
+        acquisition_value:
+          type: [number, "null"]
+          minimum: 0
+        currency:
+          type: [string, "null"]
+          pattern: "^[A-Z]{3}$"
+    Asset:
+      allOf:
+        - $ref: "#/components/schemas/AssetInput"
+        - type: object
+          required: [id, inventory_code, status, created_at, updated_at]
+          properties:
+            id:
+              $ref: "#/components/schemas/Uuid"
+            inventory_code:
+              type: string
+            status:
+              $ref: "#/components/schemas/AssetStatus"
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+    Pagination:
+      type: object
+      required: [page, per_page, total]
+      properties:
+        page:
+          type: integer
+        per_page:
+          type: integer
+        total:
+          type: integer
+    AssetPage:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Asset"
+        meta:
+          $ref: "#/components/schemas/Pagination"
+    MovementStatus:
+      type: string
+      enum: [pending, approved, rejected]
+    Movement:
+      type: object
+      required: [id, asset_id, type, status, effective_at, reason, requested_by, created_at]
+      properties:
+        id:
+          $ref: "#/components/schemas/Uuid"
+        asset_id:
+          $ref: "#/components/schemas/Uuid"
+        type:
+          type: string
+          enum: [transfer, assignment, return, disposal]
+        status:
+          $ref: "#/components/schemas/MovementStatus"
+        origin_service_id:
+          type: [string, "null"]
+          format: uuid
+        origin_site_id:
+          type: [string, "null"]
+          format: uuid
+        destination_service_id:
+          type: [string, "null"]
+          format: uuid
+        destination_site_id:
+          type: [string, "null"]
+          format: uuid
+        effective_at:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        requested_by:
+          $ref: "#/components/schemas/Uuid"
+        decided_by:
+          type: [string, "null"]
+          format: uuid
+        decision_reason:
+          type: [string, "null"]
+        created_at:
+          type: string
+          format: date-time
+    MovementInput:
+      type: object
+      required: [asset_id, type, effective_at, reason]
+      properties:
+        asset_id:
+          $ref: "#/components/schemas/Uuid"
+        type:
+          type: string
+          enum: [transfer, assignment, return, disposal]
+        destination_service_id:
+          type: [string, "null"]
+          format: uuid
+        destination_site_id:
+          type: [string, "null"]
+          format: uuid
+        effective_at:
+          type: string
+          format: date-time
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    MovementPage:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Movement"
+        meta:
+          $ref: "#/components/schemas/Pagination"
+    Campaign:
+      type: object
+      required: [id, label, status, start_date, progress, created_by]
+      properties:
+        id:
+          $ref: "#/components/schemas/Uuid"
+        label:
+          type: string
+        status:
+          type: string
+          enum: [planned, in_progress, completed, cancelled]
+        service_id:
+          type: [string, "null"]
+          format: uuid
+        site_id:
+          type: [string, "null"]
+          format: uuid
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: [string, "null"]
+          format: date
+        progress:
+          type: object
+          required: [expected, checked, discrepancies]
+          properties:
+            expected:
+              type: integer
+            checked:
+              type: integer
+            discrepancies:
+              type: integer
+        created_by:
+          $ref: "#/components/schemas/Uuid"
+    CampaignInput:
+      type: object
+      required: [label, start_date]
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 180
+        service_id:
+          type: [string, "null"]
+          format: uuid
+        site_id:
+          type: [string, "null"]
+          format: uuid
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: [string, "null"]
+          format: date
+    InventoryCheckInput:
+      type: object
+      required: [asset_id, result]
+      properties:
+        asset_id:
+          $ref: "#/components/schemas/Uuid"
+        result:
+          type: string
+          enum: [present, absent, condition_mismatch, location_mismatch]
+        observed_site_id:
+          type: [string, "null"]
+          format: uuid
+        observed_condition:
+          oneOf:
+            - $ref: "#/components/schemas/AssetCondition"
+            - type: "null"
+        comment:
+          type: [string, "null"]
+          maxLength: 1000
+    InventoryCheck:
+      allOf:
+        - $ref: "#/components/schemas/InventoryCheckInput"
+        - type: object
+          required: [id, campaign_id, observed_by, observed_at]
+          properties:
+            id:
+              $ref: "#/components/schemas/Uuid"
+            campaign_id:
+              $ref: "#/components/schemas/Uuid"
+            observed_by:
+              $ref: "#/components/schemas/Uuid"
+            observed_at:
+              type: string
+              format: date-time
+    CampaignPage:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Campaign"
+        meta:
+          $ref: "#/components/schemas/Pagination"
+    AuditEvent:
+      type: object
+      required: [event_id, source, aggregate_type, aggregate_id, event_type, occurred_at]
+      properties:
+        event_id:
+          $ref: "#/components/schemas/Uuid"
+        source:
+          type: string
+        aggregate_type:
+          type: string
+        aggregate_id:
+          $ref: "#/components/schemas/Uuid"
+        event_type:
+          type: string
+        actor_id:
+          type: [string, "null"]
+          format: uuid
+        occurred_at:
+          type: string
+          format: date-time
+        correlation_id:
+          type: [string, "null"]
+          format: uuid
+        data:
+          type: object
+          additionalProperties: true
+    AuditEventPage:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditEvent"
+        meta:
+          $ref: "#/components/schemas/Pagination"
+    ReportSummary:
+      type: object
+      required: [assets_total, assets_active, pending_movements, inventory_discrepancies]
+      properties:
+        assets_total:
+          type: integer
+        assets_active:
+          type: integer
+        pending_movements:
+          type: integer
+        inventory_discrepancies:
+          type: integer
+        declared_value:
+          type: [number, "null"]
+        currency:
+          type: [string, "null"]
+          pattern: "^[A-Z]{3}$"
+        assets_by_category:
+          type: array
+          items:
+            type: object
+            required: [category_id, label, count]
+            properties:
+              category_id:
+                $ref: "#/components/schemas/Uuid"
+              label:
+                type: string
+              count:
+                type: integer
+    Problem:
+      type: object
+      required: [type, title, status, request_id]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        request_id:
+          type: string
+    ValidationProblem:
+      allOf:
+        - $ref: "#/components/schemas/Problem"
+        - type: object
+          properties:
+            errors:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string

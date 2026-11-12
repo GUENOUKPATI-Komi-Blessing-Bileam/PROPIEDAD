@@ -1,0 +1,41 @@
+@startuml
+actor "Gestionnaire habilité" as Manager
+participant "Interface" as UI
+participant "API Gateway" as Gateway
+participant "Asset Service" as Asset
+database "Base Assets" as AssetDB
+participant "Worker Outbox" as Worker
+participant "History Service" as History
+database "Base History" as HistoryDB
+
+Manager -> UI : Demande de validation du mouvement
+UI -> Gateway : POST /movements/{id}/approve + jeton
+Gateway -> Asset : Transmettre la requête
+Asset -> Asset : Vérifier jeton, rôle et périmètre
+Asset -> AssetDB : Début transaction
+Asset -> AssetDB : Verrouiller mouvement et bien
+Asset -> Asset : Vérifier statut en attente et version
+Asset -> AssetDB : Valider mouvement,\nmettre à jour la situation du bien
+Asset -> AssetDB : Insérer événement dans l'outbox
+Asset -> AssetDB : Commit
+Asset --> Gateway : 200 — mouvement validé
+Gateway --> UI : Résultat
+UI --> Manager : Confirmation
+
+Worker -> AssetDB : Lire les événements non publiés
+Worker -> History : Envoyer événement (event_id)
+History -> HistoryDB : Insérer si event_id inédit
+History --> Worker : Accusé de réception
+Worker -> AssetDB : Marquer événement publié
+
+note over Asset,AssetDB
+La validation, la mise à jour du bien et l'écriture
+de l'outbox sont atomiques. En cas de conflit,
+la requête est refusée sans perdre l'événement.
+end note
+
+note over Worker,HistoryDB
+Si History est indisponible, le worker réessaie.
+History déduplique avec une contrainte unique sur event_id.
+end note
+@enduml

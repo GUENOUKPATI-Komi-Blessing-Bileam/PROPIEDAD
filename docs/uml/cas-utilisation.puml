@@ -1,0 +1,69 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Administrateur" as Admin
+actor "Gestionnaire central" as Central
+actor "Gestionnaire de service" as Manager
+actor "Agent d'inventaire" as Agent
+actor "Auditeur / contrôleur" as Auditor
+
+rectangle "Plateforme de gestion du patrimoine de l'État" {
+  usecase "S'authentifier" as UC_Login
+  usecase "Gérer les utilisateurs,\nrôles et permissions" as UC_Users
+  usecase "Gérer les référentiels\n(catégories, services, sites)" as UC_Refs
+  usecase "Créer et mettre à jour\nune fiche de bien" as UC_Asset
+  usecase "Rechercher et consulter\nun bien" as UC_Search
+  usecase "Soumettre un mouvement" as UC_SubmitMove
+  usecase "Valider ou rejeter\nun mouvement" as UC_ApproveMove
+  usecase "Préparer une campagne\nd'inventaire" as UC_PrepareInventory
+  usecase "Vérifier un bien\n(QR code / recherche)" as UC_CheckAsset
+  usecase "Soumettre les résultats\nd'inventaire" as UC_SubmitResults
+  usecase "Examiner les écarts\nd'inventaire" as UC_ReviewInventory
+  usecase "Consulter l'historique\nd'audit" as UC_History
+  usecase "Générer et exporter\nun rapport" as UC_Report
+  usecase "Enregistrer un événement\nd'audit" as UC_AuditEvent
+}
+
+Admin --> UC_Login
+Admin --> UC_Users
+Admin --> UC_Refs
+Central --> UC_Login
+Central --> UC_Refs
+Central --> UC_Asset
+Central --> UC_Search
+Central --> UC_SubmitMove
+Central --> UC_ApproveMove
+Central --> UC_PrepareInventory
+Central --> UC_SubmitResults
+Central --> UC_ReviewInventory
+Central --> UC_History
+Central --> UC_Report
+Manager --> UC_Login
+Manager --> UC_Asset
+Manager --> UC_Search
+Manager --> UC_SubmitMove
+Manager --> UC_PrepareInventory
+Manager --> UC_SubmitResults
+Manager --> UC_ReviewInventory
+Agent --> UC_Login
+Agent --> UC_Search
+Agent --> UC_CheckAsset
+Agent --> UC_SubmitResults
+Auditor --> UC_Login
+Auditor --> UC_Search
+Auditor --> UC_History
+Auditor --> UC_Report
+
+UC_CheckAsset ..> UC_Search : <<include>>
+UC_SubmitMove ..> UC_AuditEvent : <<include>>
+UC_ApproveMove ..> UC_AuditEvent : <<include>>
+UC_Asset ..> UC_AuditEvent : <<include>>
+UC_SubmitResults ..> UC_AuditEvent : <<include>>
+
+note bottom of UC_Users
+Les droits effectifs sont toujours vérifiés
+par le service métier, pas uniquement
+par le gateway.
+end note
+@enduml
