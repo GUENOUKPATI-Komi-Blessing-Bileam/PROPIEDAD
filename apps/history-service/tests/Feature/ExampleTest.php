@@ -16,4 +16,10 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_the_history_page_is_available_at_its_public_route(): void
+    {
+        $this->get('/history')->assertRedirect('/');
+        $this->get('/')->assertOk()->assertSee('Journal d’audit');
+    }
 }
