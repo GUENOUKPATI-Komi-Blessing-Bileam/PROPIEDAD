@@ -24,6 +24,7 @@ Les maquettes ne sont pas un fichier `.fig` et ne sont pas publiées dans un esp
 | [mouvement.svg](./mouvement.svg) | Demander un transfert de bien | « Soumettre » → confirmation et liste des mouvements |
 | [inventaire.svg](./inventaire.svg) | Suivre une campagne et ses écarts | « Scanner / saisir un code », ligne → détail, « Exporter » |
 | [rapports.svg](./rapports.svg) | Filtrer et exporter des rapports | Filtres → « Générer » → « Exporter CSV » |
+| [historique-audit.svg](./historique-audit.svg) | Consulter le journal centralisé des événements d'audit | Filtrer, consulter le payload, exporter CSV |
 
 ## Langage visuel proposé
 
