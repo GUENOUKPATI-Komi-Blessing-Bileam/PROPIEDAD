@@ -2,18 +2,19 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    /**
-     * A basic test example.
-     */
-    public function test_the_application_returns_a_successful_response(): void
-    {
-        $response = $this->get('/');
+	public function test_the_application_returns_a_successful_response(): void
+	{
+		$this->get('/')->assertOk();
+	}
 
-        $response->assertStatus(200);
-    }
+	public function test_asset_service_pages_are_accessible(): void
+	{
+		foreach (['/assets', '/assets/create', '/assets/INV-2026-0482', '/movements/create', '/inventories/2026'] as $path) {
+			$this->get($path)->assertOk();
+		}
+	}
 }
