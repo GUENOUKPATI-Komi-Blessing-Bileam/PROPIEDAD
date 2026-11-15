@@ -27,7 +27,7 @@ La spécification détaillée est [openapi.yaml](./openapi.yaml) (OpenAPI 3.1).
 | `/history` | `apps/history-service` |
 | `/reports/*` | `apps/report-service` |
 
-`apps/gateway` expose ces routes sous un seul hôte public et relaie les appels. Les URL internes des conteneurs ne sont pas exposées au navigateur.
+`apps/gateway` expose ces routes sur `http://localhost:8000` et relaie les appels. L'interface séparée `apps/frontend`, servie sur `http://localhost:3000`, utilise Nginx pour transférer `/api/` au Gateway sur le réseau Docker. Les URL internes des services métier ne sont pas exposées au navigateur.
 
 ## Endpoints MVP
 
@@ -86,4 +86,3 @@ Le History Service déduplique avec `event_id`, garde une trace append-only et n
 - Champs patrimoniaux obligatoires et valeurs des référentiels.
 - Règles d'export, limites de données et traçabilité des consultations.
 - Mécanisme de génération et de remise des fichiers CSV volumineux.
-

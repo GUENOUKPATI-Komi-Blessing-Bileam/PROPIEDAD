@@ -20,6 +20,8 @@ return [
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],
 
+    'api_token_ttl' => (int) env('AUTH_TOKEN_TTL', 3600),
+
     /*
     |--------------------------------------------------------------------------
     | Authentication Guards

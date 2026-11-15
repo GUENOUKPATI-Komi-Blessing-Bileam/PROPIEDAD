@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Tester l'API Auth",
+			"type": "shell",
+			"command": "php",
+			"args": [
+				"apps/auth/artisan",
+				"test",
+				"--filter=AuthApiTest"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

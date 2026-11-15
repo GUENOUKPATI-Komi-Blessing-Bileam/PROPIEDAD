@@ -14,6 +14,10 @@ class ExampleTest extends TestCase
     {
         $response = $this->get('/');
 
-        $response->assertStatus(200);
+        $response->assertOk()
+            ->assertSee('Rapports du patrimoine')
+            ->assertSee('Paramètres du rapport')
+            ->assertSee('Évolution des mouvements')
+            ->assertSee('Exporter CSV');
     }
 }
