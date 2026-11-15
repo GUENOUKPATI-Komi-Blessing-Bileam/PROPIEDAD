@@ -4,9 +4,35 @@
 @section('section', 'Inventaires / Campagne 2026')
 
 @section('content')
-<div class="page-heading"><div><p class="eyebrow">Inventaire périodique</p><h1>Campagne d’inventaire 2026</h1><p class="page-lead">Direction des finances · Bâtiment principal · 1er au 30 novembre 2026</p></div><button class="button button-secondary" type="button" data-export>Exporter le suivi <span aria-hidden="true">↓</span></button></div>
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Inventaire périodique</p>
+        <h1>Campagne d’inventaire 2026</h1>
+        <p class="page-lead">Direction des finances · Bâtiment principal · 1er au 30 novembre 2026</p>
+    </div>
+    <button class="button button-secondary" type="button" data-export>Exporter le suivi <span aria-hidden="true">↓</span></button>
+</div>
 
-<section class="panel progress-panel"><div class="panel-heading"><div><h2>Progression de la campagne</h2><p>Avancement des biens attendus</p></div></div><div class="progress-summary"><strong>68 %</strong><span>des biens attendus ont été vérifiés</span></div><div class="progress-track" role="progressbar" aria-label="Progression de la campagne" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100"><span></span></div><div class="progress-legend"><span>1 694 vérifiés</span><span>785 à vérifier</span><span class="note-danger">7 écarts à examiner</span></div></section>
+<section class="panel progress-panel">
+    <div class="panel-heading">
+        <div>
+            <h2>Progression de la campagne</h2>
+            <p>Avancement des biens attendus</p>
+        </div>
+    </div>
+    <div class="progress-summary">
+        <strong>68 %</strong>
+        <span>des biens attendus ont été vérifiés</span>
+    </div>
+    <div class="progress-track" role="progressbar" aria-label="Progression de la campagne" aria-valuenow="68" aria-valuemin="0" aria-valuemax="100">
+        <span></span>
+    </div>
+    <div class="progress-legend">
+        <span>1 694 vérifiés</span>
+        <span>785 à vérifier</span>
+        <span class="note-danger">7 écarts à examiner</span>
+    </div>
+</section>
 
 <form class="scan-panel" method="get" action="{{ route('inventory.show') }}" data-inventory-search><div><h2>Vérifier un bien</h2><p>Scannez son étiquette ou saisissez son code d’inventaire.</p></div><label class="sr-only" for="inventory-code">Code d’inventaire</label><input id="inventory-code" name="code" placeholder="INV-2026-0000" value="{{ request('code') }}"><button class="button button-primary" type="submit"><span aria-hidden="true">⌕</span> Rechercher</button></form>
 

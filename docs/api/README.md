@@ -33,6 +33,7 @@ La spécification détaillée est [openapi.yaml](./openapi.yaml) (OpenAPI 3.1).
 
 | Méthode et route | Fonction |
 |---|---|
+| `GET /assets/references` | Charger les catégories, services et sites actifs pour les formulaires |
 | `POST /auth/login` | Authentifier un utilisateur |
 | `POST /auth/logout` | Révoquer la session / le jeton selon la stratégie choisie |
 | `GET /auth/me` | Obtenir le profil et les rôles courants |

@@ -340,14 +340,36 @@
         const required = options.required ? ' required' : '';
         const hint = options.hint ? `<small>${escapeHtml(options.hint)}</small>` : '';
         const control = options.options
-            ? `<select id="${name}" name="${name}"${required}>${options.options.map(([value, text]) => `<option value="${value}">${escapeHtml(text)}</option>`).join('')}</select>`
+            ? `<select id="${name}" name="${name}"${required}>${options.placeholder ? `<option value="">${escapeHtml(options.placeholder)}</option>` : ''}${options.options.map(([value, text]) => `<option value="${escapeHtml(value)}">${escapeHtml(text)}</option>`).join('')}</select>`
             : type === 'textarea'
                 ? `<textarea id="${name}" name="${name}"${required}></textarea>`
                 : `<input id="${name}" name="${name}" type="${type}"${required}${options.step ? ` step="${options.step}"` : ''}>`;
         return `<div class="field${full}"><label for="${name}">${escapeHtml(label)}</label>${control}${hint}</div>`;
     }
 
-    function createForm(container, { title, lead, endpoint, fields, successPath }) {
+    async function createForm(container, { title, lead, endpoint, fields, successPath, referenceLists }) {
+        if (referenceLists) {
+            try {
+                const references = await request('/assets/references');
+                fields = fields.map((field) => {
+                    if (!field.reference) return field;
+                    const options = references[field.reference] || [];
+                    if (options.length === 0) {
+                        throw new Error(`Aucun référentiel disponible pour « ${field.label} ». Contactez un administrateur.`);
+                    }
+                    return formField(field.label, field.name, 'text', {
+                        required: true,
+                        options: options.map((option) => [option.id, option.label]),
+                        placeholder: 'Sélectionner…',
+                    });
+                });
+            } catch (error) {
+                container.innerHTML = `${heading(title, lead)}<div id="form-message"></div>`;
+                setNotice(document.querySelector('#form-message'), error.message, 'error');
+                return;
+            }
+        }
+
         container.innerHTML = `${heading(title, lead)}
             <div id="form-message"></div>
             <form class="form-panel" id="create-form"><div class="form-grid">${fields}</div>
@@ -506,15 +528,16 @@
         if (path === '/assets') return assets(container);
         if (path === '/assets/create') return createForm(container, {
             title: 'Enregistrer un bien',
-            lead: 'Les identifiants de catégorie, de service et de site sont fournis par les référentiels métier.',
+            lead: 'Les catégories, services et sites disponibles sont chargés depuis les référentiels.',
             endpoint: '/assets',
             successPath: '/assets',
+            referenceLists: true,
             fields: [
+                { label: 'Catégorie', name: 'category_id', reference: 'categories' },
+                { label: 'Service responsable', name: 'service_id', reference: 'services' },
+                { label: 'Site', name: 'site_id', reference: 'sites' },
                 formField('Libellé', 'label', 'text', { required: true }),
                 formField('État', 'condition', 'text', { required: true, options: [['good', 'Bon'], ['fair', 'Moyen'], ['poor', 'Mauvais'], ['unusable', 'Inutilisable']] }),
-                formField('UUID catégorie', 'category_id', 'text', { required: true }),
-                formField('UUID service', 'service_id', 'text', { required: true }),
-                formField('UUID site', 'site_id', 'text', { required: true }),
                 formField('Date d’acquisition', 'acquisition_date', 'date'),
                 formField('Valeur d’acquisition', 'acquisition_value', 'number', { step: '0.01' }),
                 formField('Devise (ex. XOF)', 'currency', 'text'),

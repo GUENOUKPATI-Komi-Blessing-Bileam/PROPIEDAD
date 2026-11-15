@@ -14,10 +14,26 @@
 </div>
 
 <section class="metric-grid" aria-label="Indicateurs du patrimoine">
-    <article class="metric-card"><span class="metric-label">Biens enregistrés</span><strong class="metric-value">2 486</strong><span class="metric-note note-positive">↑ 8,2 % depuis le dernier trimestre</span></article>
-    <article class="metric-card"><span class="metric-label">Valeur déclarée</span><strong class="metric-value">1,84 Md</strong><span class="metric-note">Montant indicatif à confirmer</span></article>
-    <article class="metric-card"><span class="metric-label">En attente de validation</span><strong class="metric-value">18</strong><a class="metric-note note-warning" href="{{ route('movements.create') }}">● Mouvements à traiter</a></article>
-    <article class="metric-card"><span class="metric-label">Écarts d’inventaire</span><strong class="metric-value">7</strong><a class="metric-note note-danger" href="{{ route('inventory.show') }}">● À examiner par un gestionnaire</a></article>
+    <article class="metric-card">
+        <span class="metric-label">Biens enregistrés</span>
+        <strong class="metric-value">2 486</strong>
+        <span class="metric-note note-positive">↑ 8,2 % depuis le dernier trimestre</span>
+    </article>
+    <article class="metric-card">
+        <span class="metric-label">Valeur déclarée</span>
+        <strong class="metric-value">1,84 Md</strong>
+        <span class="metric-note">Montant indicatif à confirmer</span>
+    </article>
+    <article class="metric-card">
+        <span class="metric-label">En attente de validation</span>
+        <strong class="metric-value">18</strong>
+        <a class="metric-note note-warning" href="{{ route('movements.create') }}">● Mouvements à traiter</a>
+    </article>
+    <article class="metric-card">
+        <span class="metric-label">Écarts d’inventaire</span>
+        <strong class="metric-value">7</strong>
+        <a class="metric-note note-danger" href="{{ route('inventory.show') }}">● À examiner par un gestionnaire</a>
+    </article>
 </section>
 
 <div class="dashboard-grid">

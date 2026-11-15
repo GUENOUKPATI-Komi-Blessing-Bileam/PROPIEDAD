@@ -68,7 +68,7 @@ docker compose up --build -d
 docker compose ps
 ```
 
-Les services attendent que leur base de données soit prête, lancent les migrations Laravel, puis démarrent le serveur HTTP. Vérifier les contrôles de santé :
+Les services attendent que leur base de données soit prête, lancent les migrations Laravel et, pour le service Biens, les références locales de démonstration, puis démarrent le serveur HTTP. Vérifier les contrôles de santé :
 
 ```powershell
 docker compose ps

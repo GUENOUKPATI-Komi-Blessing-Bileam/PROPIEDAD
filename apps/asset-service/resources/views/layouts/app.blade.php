@@ -21,7 +21,7 @@
             <nav class="primary-nav" aria-label="Navigation principale">
                 <a class="nav-link {{ request()->routeIs('dashboard') ? 'is-active' : '' }}" href="{{ route('dashboard') }}"><span class="nav-icon">⌂</span>Tableau de bord</a>
                 <a class="nav-link {{ request()->routeIs('assets.*') ? 'is-active' : '' }}" href="{{ route('assets.index') }}"><span class="nav-icon">▦</span>Biens</a>
-                <a class="nav-link {{ request()->routeIs('movements.*') ? 'is-active' : '' }}" href="{{ route('movements.create') }}"><span class="nav-icon">⇄</span>Mouvements</a>
+                <a class="nav-link {{ request()->routeIs('movements.*') ? 'is-active' : '' }}" href="{{ route('movements.index') }}"><span class="nav-icon">⇄</span>Mouvements</a>
                 <a class="nav-link {{ request()->routeIs('inventory.*') ? 'is-active' : '' }}" href="{{ route('inventory.show') }}"><span class="nav-icon">▣</span>Inventaires</a>
                 <span class="nav-link nav-link-muted"><span class="nav-icon">▤</span>Rapports</span>
             </nav>
