@@ -11,6 +11,7 @@
         '/': { title: 'Tableau de bord', section: 'Vue générale' },
         '/assets': { title: 'Biens', section: 'Registre patrimonial' },
         '/assets/create': { title: 'Nouveau bien', section: 'Registre patrimonial' },
+        '/categories': { title: 'Catégories', section: 'Référentiel patrimonial' },
         '/movements': { title: 'Mouvements', section: 'Suivi des mouvements' },
         '/movements/create': { title: 'Soumettre un mouvement', section: 'Suivi des mouvements' },
         '/inventories': { title: 'Inventaires', section: 'Campagnes de contrôle' },
@@ -22,6 +23,7 @@
     const navItems = [
         ['/', '⌂', 'Tableau de bord'],
         ['/assets', '▦', 'Biens'],
+        ['/categories', '▧', 'Catégories'],
         ['/movements', '⇄', 'Mouvements'],
         ['/inventories', '▣', 'Inventaires'],
         ['/history', '◷', 'Historique'],
@@ -52,6 +54,7 @@
     function activePath() {
         const path = window.location.pathname;
         if (path.startsWith('/assets')) return '/assets';
+        if (path.startsWith('/categories')) return '/categories';
         if (path.startsWith('/movements')) return '/movements';
         if (path.startsWith('/inventories')) return '/inventories';
         return pages[path] ? path : '/';
@@ -144,7 +147,7 @@
         const payload = contentType.includes('json') ? await response.json() : await response.text();
         if (!response.ok) {
             const detail = typeof payload === 'object'
-                ? (payload.detail || payload.title || `Erreur ${response.status}`)
+                ? (payload.detail || payload.title || payload.message || `Erreur ${response.status}`)
                 : `Erreur ${response.status}`;
             const requestId = typeof payload === 'object' ? payload.request_id : null;
             throw new Error(`${detail}${requestId ? ` (référence : ${requestId})` : ''}`);
@@ -267,6 +270,7 @@
                 <section class="panel"><div class="panel-heading"><div><h2>Accès rapides</h2><p>Retrouvez les modules de la plateforme</p></div></div>
                     <div class="panel-content"><div class="quick-links">
                         <a class="quick-link" href="/assets"><span class="quick-icon">▦</span><span><strong>Registre des biens</strong><small>Consulter et mettre à jour</small></span></a>
+                        <a class="quick-link" href="/categories"><span class="quick-icon">▧</span><span><strong>Catégories</strong><small>Gérer le référentiel commun</small></span></a>
                         <a class="quick-link" href="/movements"><span class="quick-icon">⇄</span><span><strong>Mouvements</strong><small>Suivre les demandes</small></span></a>
                         <a class="quick-link" href="/inventories"><span class="quick-icon">▣</span><span><strong>Inventaires</strong><small>Gérer les campagnes</small></span></a>
                         <a class="quick-link" href="/history"><span class="quick-icon">◷</span><span><strong>Historique</strong><small>Consulter le journal d’audit</small></span></a>
@@ -335,32 +339,102 @@
         await search();
     }
 
+    async function categories(container) {
+        const createLink = '<a class="button button-primary" href="#category-form">＋ Nouvelle catégorie</a>';
+        container.innerHTML = `${heading('Catégories', 'Gérez les catégories utilisées dans les formulaires de la plateforme.', createLink)}
+            <div id="form-message"></div>
+            <section class="form-panel category-form-panel">
+                <h2>Créer une catégorie</h2>
+                <form id="category-form">
+                    <div class="form-grid">
+                        ${formField('Nom de la catégorie', 'label', 'text', { required: true })}
+                        ${formField('Description', 'description', 'textarea', { full: true })}
+                    </div>
+                    <div class="form-actions"><button class="button button-primary" type="submit">Créer la catégorie</button></div>
+                </form>
+            </section>
+            <section class="panel category-list-panel">
+                <div class="panel-heading"><div><h2>Liste des catégories</h2><p>Les catégories actives sont disponibles dans les formulaires de biens.</p></div></div>
+                <div id="list-message"></div><div id="category-table"></div>
+            </section>`;
+
+        async function loadCategories() {
+            await loadInto(document.querySelector('#list-message'), '/categories', (payload) => {
+                table(document.querySelector('#category-table'), rowsFrom(payload), [
+                    ['label', 'Nom'], ['description', 'Description'], ['status', 'Disponibilité'],
+                ]);
+            });
+        }
+
+        document.querySelector('#category-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const values = Object.fromEntries(new FormData(form));
+            Object.keys(values).forEach((key) => { if (values[key] === '') delete values[key]; });
+            const button = form.querySelector('button[type="submit"]');
+            button.disabled = true;
+
+            try {
+                await request('/categories', { method: 'POST', body: values });
+                setNotice(document.querySelector('#form-message'), 'La catégorie a été créée et est disponible dans les formulaires de biens.', 'success');
+                form.reset();
+                await loadCategories();
+            } catch (error) {
+                setNotice(document.querySelector('#form-message'), error.message, 'error');
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        await loadCategories();
+    }
+
     function formField(label, name, type = 'text', options = {}) {
         const full = options.full ? ' field-full' : '';
         const required = options.required ? ' required' : '';
         const hint = options.hint ? `<small>${escapeHtml(options.hint)}</small>` : '';
+        const suggestions = options.suggestions
+            ? ` list="${name}-suggestions"><datalist id="${name}-suggestions">${options.suggestions.map((value) => `<option value="${escapeHtml(value)}">`).join('')}</datalist>`
+            : '>';
         const control = options.options
             ? `<select id="${name}" name="${name}"${required}>${options.placeholder ? `<option value="">${escapeHtml(options.placeholder)}</option>` : ''}${options.options.map(([value, text]) => `<option value="${escapeHtml(value)}">${escapeHtml(text)}</option>`).join('')}</select>`
             : type === 'textarea'
                 ? `<textarea id="${name}" name="${name}"${required}></textarea>`
-                : `<input id="${name}" name="${name}" type="${type}"${required}${options.step ? ` step="${options.step}"` : ''}>`;
+                : `<input id="${name}" name="${name}" type="${type}"${required}${options.step ? ` step="${options.step}"` : ''}${suggestions}`;
         return `<div class="field${full}"><label for="${name}">${escapeHtml(label)}</label>${control}${hint}</div>`;
     }
 
     async function createForm(container, { title, lead, endpoint, fields, successPath, referenceLists }) {
+        const referenceIds = new Map();
         if (referenceLists) {
             try {
-                const references = await request('/assets/references');
+                const needsAssets = fields.some((field) => field.reference === 'assets');
+                const [references, assetPage] = await Promise.all([
+                    request('/assets/references'),
+                    needsAssets ? request('/assets?per_page=100') : Promise.resolve({ data: [] }),
+                ]);
                 fields = fields.map((field) => {
                     if (!field.reference) return field;
-                    const options = references[field.reference] || [];
-                    if (options.length === 0) {
-                        throw new Error(`Aucun référentiel disponible pour « ${field.label} ». Contactez un administrateur.`);
+                    const options = field.reference === 'assets'
+                       ? (assetPage.data || []).map((asset) => ({
+                           id: asset.id,
+                           label: `${asset.inventory_code} · ${asset.label}`,
+                       }))
+                       : (references[field.reference] || []);
+                    if (options.length === 0 && field.required !== false) {
+                       throw new Error(`Aucun référentiel disponible pour « ${field.label} ». Contactez un administrateur.`);
+                    }
+                    if (field.referenceInput) {
+                       referenceIds.set(field.name, new Map(options.map((option) => [option.label, option.id])));
+                       return formField(field.label, field.name, 'text', {
+                           required: field.required !== false,
+                           suggestions: options.map((option) => option.label),
+                       });
                     }
                     return formField(field.label, field.name, 'text', {
-                        required: true,
-                        options: options.map((option) => [option.id, option.label]),
-                        placeholder: 'Sélectionner…',
+                       required: field.required !== false,
+                       options: options.map((option) => [option.id, option.label]),
+                       placeholder: field.required === false ? 'Aucune sélection' : 'Sélectionner…',
                     });
                 });
             } catch (error) {
@@ -380,6 +454,15 @@
             const form = event.currentTarget;
             const values = Object.fromEntries(new FormData(form));
             Object.keys(values).forEach((key) => { if (values[key] === '') delete values[key]; });
+            for (const [name, options] of referenceIds) {
+                const id = options.get(values[name]);
+                if (!id) {
+                    setNotice(document.querySelector('#form-message'), `Choisissez un ${name === 'service' ? 'service' : 'site'} dans les suggestions.`, 'error');
+                    return;
+                }
+                values[`${name}_id`] = id;
+                delete values[name];
+            }
             if (values.effective_at) values.effective_at = new Date(values.effective_at).toISOString();
             const button = form.querySelector('button[type="submit"]');
             button.disabled = true;
@@ -400,7 +483,7 @@
             <div id="list-message"></div><section class="panel"><div id="movement-table"></div></section>`;
         await loadInto(document.querySelector('#list-message'), '/movements?per_page=20', (payload) => {
             table(document.querySelector('#movement-table'), rowsFrom(payload), [
-                ['id', 'Référence'], ['asset_id', 'Bien'], ['type', 'Type'], ['status', 'Statut'], ['effective_at', 'Date d’effet'],
+                ['id', 'Référence'], ['asset_code', 'Code du bien'], ['asset_label', 'Bien'], ['type', 'Type'], ['status', 'Statut'], ['effective_at', 'Date d’effet'],
             ], (row) => {
                 const group = document.createElement('div');
                 group.className = 'table-actions';
@@ -526,6 +609,7 @@
         const path = window.location.pathname.replace(/\/+$/, '') || '/';
         if (path === '/') return dashboard(container);
         if (path === '/assets') return assets(container);
+        if (path === '/categories') return categories(container);
         if (path === '/assets/create') return createForm(container, {
             title: 'Enregistrer un bien',
             lead: 'Les catégories, services et sites disponibles sont chargés depuis les référentiels.',
@@ -534,8 +618,8 @@
             referenceLists: true,
             fields: [
                 { label: 'Catégorie', name: 'category_id', reference: 'categories' },
-                { label: 'Service responsable', name: 'service_id', reference: 'services' },
-                { label: 'Site', name: 'site_id', reference: 'sites' },
+                { label: 'Service responsable', name: 'service', reference: 'services', referenceInput: true },
+                { label: 'Site', name: 'site', reference: 'sites', referenceInput: true },
                 formField('Libellé', 'label', 'text', { required: true }),
                 formField('État', 'condition', 'text', { required: true, options: [['good', 'Bon'], ['fair', 'Moyen'], ['poor', 'Mauvais'], ['unusable', 'Inutilisable']] }),
                 formField('Date d’acquisition', 'acquisition_date', 'date'),
@@ -551,12 +635,13 @@
             lead: 'La demande sera transmise au service des biens pour validation.',
             endpoint: '/movements',
             successPath: '/movements',
+            referenceLists: true,
             fields: [
-                formField('UUID du bien', 'asset_id', 'text', { required: true }),
+                { label: 'Bien concerné', name: 'asset_id', reference: 'assets' },
                 formField('Type', 'type', 'text', { required: true, options: [['transfer', 'Transfert'], ['assignment', 'Affectation'], ['return', 'Retour'], ['disposal', 'Sortie']] }),
                 formField('Date d’effet', 'effective_at', 'datetime-local', { required: true }),
-                formField('UUID service de destination', 'destination_service_id', 'text'),
-                formField('UUID site de destination', 'destination_site_id', 'text'),
+                { label: 'Service de destination', name: 'destination_service_id', reference: 'services', required: false },
+                { label: 'Site de destination', name: 'destination_site_id', reference: 'sites', required: false },
                 formField('Motif', 'reason', 'textarea', { required: true, full: true }),
             ],
         });

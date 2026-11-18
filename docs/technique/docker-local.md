@@ -11,9 +11,9 @@ La configuration racine démarre le frontend et les applications backend :
 - History Service : interne au réseau Compose
 - Report Service : interne au réseau Compose
 
-Le frontend statique est indépendant du backend Laravel. Nginx sert les fichiers de `apps/frontend` et relaie les appels `/api/` au Gateway sur le réseau Docker. Le navigateur reste ainsi sur une seule origine, sans configuration CORS. Le Gateway relaie les routes vers les services propriétaires. Le endpoint Laravel `/up` sert au contrôle de santé.
+Le frontend statique est indépendant du backend Laravel. Nginx sert les fichiers de `apps/frontend` et relaie les appels `/api/` au Gateway sur le réseau Docker. Le navigateur reste ainsi sur une seule origine, sans configuration CORS. Le Gateway relaie les routes vers les services propriétaires. Le service Biens enregistre les biens et les demandes de mouvement dans sa base PostgreSQL ; les listes relisent ces données depuis la base. Le endpoint Laravel `/up` sert au contrôle de santé.
 
-Le Gateway présente les modules et relaie leurs appels, mais les API métier Biens, Historique et Rapports restent à implémenter dans leurs services. Ces modules afficheront explicitement l'erreur retournée tant que leurs endpoints ne sont pas disponibles. Le présent fichier est un socle de développement local, pas une configuration de production. Il utilise le serveur intégré `artisan serve` et active le mode debug.
+Le Gateway présente les modules et relaie leurs appels. L'API Biens prend en charge les formulaires de création et les listes de biens et de mouvements. Les API d'historique et de rapports ainsi que les autres opérations métier non implémentées affichent explicitement l'erreur retournée par leur service. Le présent fichier est un socle de développement local, pas une configuration de production. Il utilise le serveur intégré `artisan serve` et active le mode debug.
 
 ## Prérequis
 
@@ -122,4 +122,4 @@ Compose surcharge `DB_CONNECTION`, l'hôte, le port et la base dans chaque conte
 
 ## Suite du travail
 
-Les API métier Biens, Historique et Rapports restent à implémenter selon le contrat [API](../api/README.md). Le frontend séparé, le Gateway et le service Auth sont intégrés à Compose.
+Les opérations métier restantes, notamment l'historique, les rapports et la décision sur les mouvements, restent à implémenter selon le contrat [API](../api/README.md). Le frontend séparé, le Gateway, le service Biens et le service Auth sont intégrés à Compose.

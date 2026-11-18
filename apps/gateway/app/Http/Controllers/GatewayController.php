@@ -82,7 +82,7 @@ class GatewayController extends Controller
     {
         return match (true) {
             Str::startsWith($path, 'auth/') => 'auth',
-            Str::startsWith($path, ['assets', 'movements/', 'movements', 'inventory-campaigns/', 'inventory-campaigns']) => 'asset',
+            Str::startsWith($path, ['categories', 'assets', 'movements/', 'movements', 'inventory-campaigns/', 'inventory-campaigns']) => 'asset',
             $path === 'history' => 'history',
             Str::startsWith($path, 'reports/') => 'report',
             default => null,

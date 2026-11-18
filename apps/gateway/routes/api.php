@@ -8,6 +8,7 @@ Route::prefix('v1')->group(function (): void {
     Route::post('auth/logout', GatewayController::class)->name('gateway.auth.logout');
     Route::get('auth/me', GatewayController::class)->name('gateway.auth.me');
 
+    Route::match(['GET', 'POST'], 'categories', GatewayController::class)->name('gateway.categories');
     Route::match(['GET', 'POST'], 'assets', GatewayController::class)->name('gateway.assets.index');
     Route::match(['GET', 'PATCH'], 'assets/{assetId}', GatewayController::class)->name('gateway.assets.show');
 

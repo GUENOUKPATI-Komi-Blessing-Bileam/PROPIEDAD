@@ -12,6 +12,7 @@ security:
   - bearerAuth: []
 tags:
   - name: Auth
+  - name: Catégories
   - name: Biens
   - name: Mouvements
   - name: Inventaires
@@ -80,6 +81,39 @@ paths:
                 $ref: "#/components/schemas/User"
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /categories:
+    get:
+      tags: [Catégories]
+      summary: Lister les catégories du référentiel
+      responses:
+        "200":
+          description: Catégories actives et inactives
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Catégories]
+      summary: Créer une catégorie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "201":
+          description: Catégorie créée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationError"
   /assets:
     get:
       tags: [Biens]
@@ -606,6 +640,36 @@ components:
     AssetCondition:
       type: string
       enum: [good, fair, poor, unusable]
+    CategoryInput:
+      type: object
+      required: [label]
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: [string, "null"]
+          maxLength: 2000
+    Category:
+      allOf:
+        - $ref: "#/components/schemas/CategoryInput"
+        - type: object
+          required: [id, status]
+          properties:
+            id:
+              $ref: "#/components/schemas/Uuid"
+            status:
+              type: string
+              enum: [Active, Inactive]
+    CategoryPage:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
     AssetInput:
       type: object
       required: [label, category_id, service_id, site_id, condition]
@@ -709,6 +773,12 @@ components:
           $ref: "#/components/schemas/Uuid"
         asset_id:
           $ref: "#/components/schemas/Uuid"
+        asset_code:
+          type: string
+          description: Code d’inventaire du bien associé.
+        asset_label:
+          type: string
+          description: Libellé du bien associé.
         type:
           type: string
           enum: [transfer, assignment, return, disposal]
