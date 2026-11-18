@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class AssetApiTest extends TestCase
@@ -65,6 +64,8 @@ class AssetApiTest extends TestCase
             ->assertCreated()
             ->assertJsonPath('label', 'Ordinateur de démonstration')
             ->assertJsonPath('category_id', self::CATEGORY_ID)
+            ->assertJsonPath('service_id', self::SERVICE_ID)
+            ->assertJsonPath('site_id', self::SITE_ID)
             ->assertJsonPath('status', 'active')
             ->assertJsonPath('inventory_code', fn ($code) => str_starts_with($code, 'INV-'.now()->format('Y').'-'));
 
